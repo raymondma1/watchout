@@ -4,11 +4,16 @@
 Feel free to use it if you like. */
 body {
     height: 600px;
-    width: 800px;
+    width: 1000px;
     position:relative;
     background-color: rgb(200, 222, 223);
+    border-style: solid;
 }
 
 circle {
-  color:black;
+  fill:white;
+}
+
+.user {
+  fill:orange;
 }
