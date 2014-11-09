@@ -16,7 +16,7 @@ var randomize = function(n){
 var update = function(arr) {
   var spaceCircles = arr;
 
-  circles.data(arr).transition().duration(1000)
+  circles.data(arr).transition().duration(2000)
    .tween("collision", function() {
     // console.log();
     var func = checkCollision;
@@ -24,6 +24,7 @@ var update = function(arr) {
     return function(t) {
       checkCollision(_that, onCollision);
     }
+
    })
    .attr("cx", function (d) { return d.X; })
    .attr("cy", function (d) { return d.Y; })
@@ -36,7 +37,7 @@ var updateScore = function() {
   setInterval(function(){
    scores.curScore += 1;
    d3.select("div.current").select("span").text(scores.curScore);
-   }, 100);
+   }, 200);
 }
 
 var updateBestScore = function() {
@@ -47,41 +48,34 @@ var updateBestScore = function() {
 }
 
 var drag = d3.behavior.drag()
-              .on('drag', function() {d3.select(this).attr('cx', d3.event.x)
-                                      .attr('cy', d3.event.y); });
+              .on('drag', function() {d3.select(this).attr('cx', Math.max(0,Math.min(d3.event.x, 890)))
+                                      .attr('cy', Math.max(0,Math.min(d3.event.y, 590))); });
 
 var checkCollision = function(enemy, collidedCallback) {
-  // debugger;
-   // console.log(enemy);
   var radiusSum = parseFloat(enemy.attr('r')) + player[0].radius;
   var xDiff = parseFloat(enemy.attr('cx')) - parseFloat(user.attr('cx'));
   var yDiff = parseFloat(enemy.attr('cy')) - parseFloat(user.attr('cy'));
-  // console.log(enem, yDiff);
-console.log(radiusSum, xDiff, yDiff);
   var separation = Math.sqrt( Math.pow(xDiff,2) + Math.pow(yDiff,2) );
-  // console.log(separation);
-  if (separation < radiusSum) {
-    collidedCallback();
+  if (separation <= radiusSum && !!enemy.attr('flag')) {
+    collidedCallback.call(enemy, enemy);
+    enemy.attr('flag', true);
+  }
+  else if(separation > radiusSum && !enemy.attr('flag')) {
+    enemy.attr('flag', false);
   }
 }
 
-var onCollision = function() {
-  var count = 0;
-  var func = function() {
-    while(count === 0)
-    {
-      scores.collision += 1;
-      count++;
-    }
-  }();
-
+var onCollision = function(enemy) {
+  if(!!enemy.attr('flag')){
+    scores.collision += 1;
+    enemy.attr('flag', true);
+  }
   updateBestScore();
   scores.curScore = 0;
-
-  d3.select("div.collisions").select("span").text(scores.collision);
+  updateScore();
+  //d3.select("div.collisions").select("span").text(scores.collision);
   d3.select("div.current").select("span").text(scores.curScore);
 }
-  updateScore();
 
 var scores = {
   curScore: 0,
@@ -89,15 +83,17 @@ var scores = {
   collision: 0
 }
 
+var collided = false;
 var spaceCircles = randomize(30);
 var svgContainer = d3.select("body").append("svg")
- .attr("width", 1100)
- .attr("height", 1000);
+ // .attr("width", 1100)
+ // .attr("height", 900);
 
 var circles = svgContainer.selectAll("circle")
    .data(spaceCircles)
    .enter()
-   .append("circle");
+   .append("circle")
+   .attr("flag", false);
 
 
 var Player = function(x, y, r) {

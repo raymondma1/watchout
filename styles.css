@@ -3,15 +3,19 @@
 /* Note: an asteroid image is included in this repo.
 Feel free to use it if you like. */
 body {
-    height: 800px;
-    width: 1000px;
+    height: 670px;
+    width: 900px;
     position:relative;
     background-color: rgb(200, 222, 223);
     border-style: solid;
 }
 
+svg {
+  height:100%;
+  width:100%;
+}
 circle {
-  fill:white;
+  fill:black;
 }
 
 .user {
